@@ -18,7 +18,6 @@ OneSignal.Notifications.requestPermission(true)
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
 
-  tagUserInfoCreate()
 
   useEffect(()=>{
     const handleNotificationClick = (event: NotificationClickEvent):void=>{
@@ -39,6 +38,7 @@ export default function App() {
 
      return ()=> OneSignal.Notifications.removeEventListener('click', handleNotificationClick)
   },[])
+
 
   return (
     <NativeBaseProvider theme={THEME}>

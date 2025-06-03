@@ -1,28 +1,32 @@
-import { HStack, Text, IconButton, CloseIcon, Icon, Pressable } from 'native-base';
+import { HStack, Text, IconButton, CloseIcon, Icon, Pressable, VStack } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import { OSNotification } from 'react-native-onesignal';
-import { useNavigation } from '@react-navigation/native';
+import * as Linking from 'expo-linking'
+import { tagUserEmailRemove } from '../notifications/notificationsTags';
 
 type Props = {
   data: OSNotification;
   onClose: () => void;
 }
 
-type AditionalDataProps = {
-  route?: string,
-  product_id?: string
-}
-
 export function Notification({ data, onClose }: Props) {
-  const {navigate} = useNavigation()
-  function handleOnPress(){
-    const { product_id, route } = data.additionalData as AditionalDataProps
 
-    if(route === 'details'  && product_id) {
-      navigate('details', {productId: product_id})
-      onClose()
-    }
+  function handleOnPress(){
+    let url = data.launchURL
+
+    if (!url &&  typeof data.rawPayload === 'string') {
+        const payloadObj = JSON.parse(data.rawPayload)
+        const customObj = JSON.parse(payloadObj.custom)
+        url = customObj.u
   }
+
+  if (url) {
+      Linking.openURL(url);
+      onClose();
+    }
+    
+  }
+
   return (
     <Pressable
       w="full" 
@@ -38,10 +42,14 @@ export function Notification({ data, onClose }: Props) {
       alignItems="center" 
     >
         <Icon as={Ionicons} name="notifications-outline" size={5} color="black" mr={2}/>
-
+      <VStack>
         <Text fontSize="md" color="black" flex={1}>
           {data.title}
         </Text>
+        <Text fontSize="sm" color="black" flex={1}>
+          {data.body}
+        </Text>
+      </VStack>
 
       <IconButton 
         variant="unstyled" 
